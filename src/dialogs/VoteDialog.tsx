@@ -92,19 +92,22 @@ const VoteDialog: React.FC<VoteDialogProps> = ({
       docRef
         ?.update({
           team1_votes: firebase.firestore.FieldValue.increment(1),
-          vote_ids: firebase.firestore.FieldValue.arrayUnion(user?.uid),
-          team1_votes_id: firebase.firestore.FieldValue.arrayUnion(user?.uid),
+          vote_ids: firebase.firestore.FieldValue.arrayUnion(user?.uid ?? ""),
+          team1_votes_id: firebase.firestore.FieldValue.arrayUnion(
+            user?.uid ?? ""
+          ),
           votes: [
             ...(poll?.votes ?? []),
             {
-              id: user?.uid,
+              id: user?.uid ?? "",
               vote: "team1",
-              vote_team_id: poll?.team1?.id,
+              vote_team_id: poll?.team1?.id ?? "",
               date_created: firebase.firestore.Timestamp.now(),
-              email: user?.email,
-              fb_link: userData.profile.link,
-              name: user?.displayName,
-              picture: userData?.profile.picture.data?.url,
+              email: user?.email ?? "",
+              fb_link: userData.profile.link ?? "",
+              fb_id: userData?.profile?.id ?? "",
+              name: user?.displayName ?? "",
+              picture: userData?.profile.picture.data?.url ?? "",
             },
           ],
         })
@@ -129,19 +132,22 @@ const VoteDialog: React.FC<VoteDialogProps> = ({
       docRef
         ?.update({
           team2_votes: firebase.firestore.FieldValue.increment(1),
-          vote_ids: firebase.firestore.FieldValue.arrayUnion(user?.uid),
-          team2_votes_id: firebase.firestore.FieldValue.arrayUnion(user?.uid),
+          vote_ids: firebase.firestore.FieldValue.arrayUnion(user?.uid + ""),
+          team2_votes_id: firebase.firestore.FieldValue.arrayUnion(
+            user?.uid + ""
+          ),
           votes: [
             ...(poll?.votes ?? []),
             {
-              id: user?.uid,
+              id: user?.uid ?? "",
               vote: "team2",
-              vote_team_id: poll?.team2?.id,
+              vote_team_id: poll?.team2?.id ?? "",
               date_created: firebase.firestore.Timestamp.now(),
-              email: user?.email,
-              fb_link: userData.profile.link,
-              name: user?.displayName,
-              picture: userData?.profile.picture.data?.url,
+              email: user?.email ?? "",
+              fb_link: userData.profile.link ?? "",
+              fb_id: userData?.profile?.id ?? "",
+              name: user?.displayName ?? "",
+              picture: userData?.profile.picture.data?.url ?? "",
             },
           ],
         })

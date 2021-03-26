@@ -57,4 +57,5 @@ export interface VoteItem {
   name?: string;
   picture?: string;
   email: string;
+  fb_id?: string;
 }
