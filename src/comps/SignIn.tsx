@@ -24,7 +24,7 @@ const mcs = makeStyles({
 // https://graph.facebook.com/v10.0/me?fields=id%2Cname%2Clink%2Cpicture.type(large)&access_token=
 var fbProvider = new firebase.auth.FacebookAuthProvider();
 fbProvider.addScope("public_profile");
-fbProvider.addScope("user_link");
+// fbProvider.addScope("user_link");
 
 // var googleProvider = new firebase.auth.GoogleAuthProvider();
 
