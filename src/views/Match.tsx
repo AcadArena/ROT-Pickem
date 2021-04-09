@@ -30,12 +30,20 @@ const makeComponentStyles = makeStyles((theme) => ({
     display: "flex",
     width: "100%",
 
-    "& .vs": { alignSelf: "center", height: 75, width: 75 },
+    [theme.breakpoints.down("md")]: {
+      flexDirection: "column",
+    },
+
+    "& .vs": { alignSelf: "center", height: 75, width: 75, margin: 10 },
 
     "& .left": {
-      backgroundColor: "rgba(156, 39, 176, .1)",
+      // backgroundColor: "rgba(156, 39, 176, .1)",
+      backgroundColor: "rgba(156, 39, 176, 1)",
     },
-    "& .right": { backgroundColor: "rgba(244, 67, 54, .10)" },
+    "& .right": {
+      // backgroundColor: "rgba(244, 67, 54, .10)",
+      backgroundColor: "rgba(244, 67, 54, .8)",
+    },
 
     "& .team": {
       flexGrow: 1,
@@ -46,6 +54,9 @@ const makeComponentStyles = makeStyles((theme) => ({
       padding: theme.spacing(8),
       margin: 40,
       borderRadius: 10,
+      [theme.breakpoints.down("md")]: {
+        margin: "2%",
+      },
 
       "& .logo": {
         width: 300,
@@ -61,21 +72,31 @@ const makeComponentStyles = makeStyles((theme) => ({
         textAlign: "center",
         fontFamily: "'Anton'",
         fontSize: "2rem",
+        color: "#fff",
       },
 
       "& .school": {
         lineHeight: 1,
+        textAlign: "center",
       },
     },
   },
   container: {
     display: "flex",
     flexDirection: "column",
+
+    [theme.breakpoints.down("md")]: {
+      padding: 0,
+    },
   },
   comparisonBar: {
     display: "flex",
     flexDirection: "column",
     padding: "0px 40px",
+
+    [theme.breakpoints.down("md")]: {
+      padding: "20px 2%",
+    },
     "& .bar": {
       height: 50,
       backgroundColor: "rgba(244, 67, 54, .8)",
@@ -234,7 +255,7 @@ const Match: React.FC<
                   </Typography>
                 </div>
 
-                <div className="expiry">
+                {/* <div className="expiry">
                   {compareDesc(new Date(), poll.expiry_date_time.toDate()) === 1
                     ? `Closes in: ${formatDistanceToNow(
                         poll.expiry_date_time.toDate()
@@ -243,17 +264,19 @@ const Match: React.FC<
                         poll.expiry_date_time.toDate(),
                         { addSuffix: true, includeSeconds: true }
                       )}`}
-                </div>
+                </div> */}
+                {poll.is_closed && <div className="expiry">Poll is closed</div>}
                 {!poll.vote_ids.includes(user?.uid ?? "") ? (
                   <Button
                     variant="outlined"
                     size="large"
                     onClick={pickEm}
                     disabled={
-                      compareDesc(
-                        new Date(),
-                        poll.expiry_date_time.toDate()
-                      ) === -1
+                      // compareDesc(
+                      //   new Date(),
+                      //   poll.expiry_date_time.toDate()
+                      // ) === -1
+                      poll.is_closed
                     }
                   >
                     Pick'Em

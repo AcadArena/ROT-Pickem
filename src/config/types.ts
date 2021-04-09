@@ -43,6 +43,7 @@ export interface PollItemProps {
   match_id: number;
   tournament_url: string;
   is_published: boolean;
+  is_closed: boolean;
   match_round: number;
   is_groups: boolean;
   tournament_name: string;
@@ -58,4 +59,47 @@ export interface VoteItem {
   picture?: string;
   email: string;
   fb_id?: string;
+}
+
+export interface PollItemProps {
+  expiry_date_time: firebase.firestore.Timestamp;
+  team1?: Participant;
+  team2?: Participant;
+  team1_votes: number;
+  team2_votes: number;
+  vote_ids: string[];
+  votes: VoteItem[];
+  team1_votes_id: string[];
+  team2_votes_id: string[];
+  match_id: number;
+  tournament_url: string;
+  is_published: boolean;
+  is_closed: boolean;
+  match_round: number;
+  is_groups: boolean;
+  tournament_name: string;
+  talent_votes: TalentVoteItem[];
+}
+
+export interface TalentVoteItem {
+  caster: Caster;
+  vote?: "team1" | "team2";
+  vote_team_id?: number;
+}
+export interface VoteItem {
+  id: string;
+  vote: "team1" | "team2";
+  vote_team_id: number;
+  date_created: firebase.firestore.Timestamp;
+  fb_link?: string;
+  fb_id?: string;
+  picture?: string;
+  name?: string;
+  email: string;
+}
+
+export interface Caster {
+  ign: string;
+  name: string;
+  photo?: string;
 }

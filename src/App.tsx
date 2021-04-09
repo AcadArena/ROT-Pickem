@@ -12,7 +12,7 @@ const makeComponentStyles = makeStyles((theme) => ({
     height: "100vh",
     width: "100vw",
     display: "flex",
-    overflow: "hidden",
+    overflowX: "hidden",
   },
 }));
 
