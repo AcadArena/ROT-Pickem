@@ -1,6 +1,6 @@
-import { Button, Dialog, makeStyles, Typography } from "@material-ui/core";
+import { Button, Dialog, makeStyles } from "@material-ui/core";
 import React from "react";
-import { PollItemProps } from "../config/types";
+import { MessageItem, PollItemProps, VoteItem } from "../config/types";
 import firebase, {
   projectAuth,
   projectFirestore as db,
@@ -72,6 +72,12 @@ const VoteDialog: React.FC<VoteDialogProps> = ({
   const [loading, setLoading] = React.useState<boolean>(false);
   const [user] = useAuthState(projectAuth);
   const [userData, setUserData] = React.useState<any>();
+  const [state, setState] = React.useState<MessageItem>({
+    has_message: false,
+    message_alias: "",
+    message_content: "",
+    message_photo: "",
+  });
 
   React.useEffect(() => {
     if (!user) return;
@@ -109,7 +115,7 @@ const VoteDialog: React.FC<VoteDialogProps> = ({
               name: user?.displayName ?? "",
               picture: userData?.profile?.picture?.data?.url ?? "",
             },
-          ],
+          ] as VoteItem[],
         })
         .then(() => {
           setLoading(false);

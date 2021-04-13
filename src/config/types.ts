@@ -86,7 +86,7 @@ export interface TalentVoteItem {
   vote?: "team1" | "team2";
   vote_team_id?: number;
 }
-export interface VoteItem {
+export interface VoteItem extends MessageItem {
   id: string;
   vote: "team1" | "team2";
   vote_team_id: number;
@@ -96,6 +96,12 @@ export interface VoteItem {
   picture?: string;
   name?: string;
   email: string;
+}
+export interface MessageItem {
+  has_message?: boolean;
+  message_alias?: string;
+  message_photo?: string;
+  message_content?: string;
 }
 
 export interface Caster {

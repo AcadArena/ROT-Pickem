@@ -13,8 +13,8 @@ import { PollItemProps } from "../config/types";
 import { ReactComponent as BattleSvg } from "../assets/imgs/battle.svg";
 import { useAuthState } from "react-firebase-hooks/auth";
 import SignInDialog from "../dialogs/SignInDialog";
-import { formatDistanceToNow } from "date-fns";
-import { compareDesc } from "date-fns/esm";
+// import { formatDistanceToNow } from "date-fns";
+// import { compareDesc } from "date-fns/esm";
 import VoteDialog from "../dialogs/VoteDialog";
 import { Spring } from "react-spring/renderprops-universal";
 import Loading from "../comps/Loading";
@@ -145,9 +145,9 @@ const Match: React.FC<
   RouteComponentProps<{ tournamentId: string; matchId: string }>
 > = ({ match: { params }, location: { pathname } }) => {
   const classes = makeComponentStyles();
-  const tournamentDocRef = projectFirestore.doc(
-    `tournaments/${params.tournamentId}`
-  );
+  // const tournamentDocRef = projectFirestore.doc(
+  //   `tournaments/${params.tournamentId}`
+  // );
   const docRef = projectFirestore.doc(
     `tournaments/${params.tournamentId}/poll/${params.matchId}`
   );
