@@ -1,9 +1,23 @@
-import { Button, Dialog, makeStyles } from "@material-ui/core";
+import {
+  Button,
+  ButtonBase,
+  Dialog,
+  FormControlLabel,
+  makeStyles,
+  Switch,
+  TextField,
+} from "@material-ui/core";
 import React from "react";
-import { MessageItem, PollItemProps, VoteItem } from "../config/types";
+import {
+  MessageItem,
+  Participant,
+  PollItemProps,
+  VoteItem,
+} from "../config/types";
 import firebase, {
   projectAuth,
   projectFirestore as db,
+  projectStorage,
 } from "../config/firebase";
 import Alert from "@material-ui/lab/Alert";
 import Loading from "../comps/Loading";
@@ -23,9 +37,19 @@ const mcs = makeStyles((theme) => ({
     display: "flex",
     flexDirection: "column",
     position: "relative",
+
+    "& .avatar": {
+      marginRight: 10,
+      height: 75,
+      width: 75,
+      border: "1px dashed rgba(0,0,0,.5)",
+      backgroundSize: "cover",
+      backgroundPosition: "center",
+    },
   },
   poll: {
     display: "flex",
+    justifyContent: "center",
     "& .left": {
       marginRight: 10,
       backgroundColor: "rgba(156, 39, 176, .1)",
@@ -61,6 +85,14 @@ const mcs = makeStyles((theme) => ({
   },
 }));
 
+const fileTypes = [
+  "image/png",
+  "image/jpeg",
+  "image/gif",
+  "image/svg",
+  "image/svg+xml",
+];
+
 const VoteDialog: React.FC<VoteDialogProps> = ({
   open,
   onClose = () => {},
@@ -68,16 +100,16 @@ const VoteDialog: React.FC<VoteDialogProps> = ({
   docRef,
 }) => {
   const c = mcs();
-  const [selected, setSelected] = React.useState<any>();
+  const [selected, setSelected] = React.useState<Participant | undefined>();
   const [loading, setLoading] = React.useState<boolean>(false);
   const [user] = useAuthState(projectAuth);
   const [userData, setUserData] = React.useState<any>();
   const [state, setState] = React.useState<MessageItem>({
-    has_message: false,
-    message_alias: "",
-    message_content: "",
-    message_photo: "",
+    alias: "",
+    message: "",
+    img: "",
   });
+  const [messageState, setMeessageState] = React.useState<boolean>(false);
 
   React.useEffect(() => {
     if (!user) return;
@@ -114,6 +146,7 @@ const VoteDialog: React.FC<VoteDialogProps> = ({
               fb_id: userData?.profile?.id ?? "",
               name: user?.displayName ?? "",
               picture: userData?.profile?.picture?.data?.url ?? "",
+              message: messageState ? state : false,
             },
           ] as VoteItem[],
         })
@@ -154,6 +187,7 @@ const VoteDialog: React.FC<VoteDialogProps> = ({
               fb_id: userData?.profile?.id ?? "",
               name: user?.displayName ?? "",
               picture: userData?.profile?.picture?.data?.url ?? "",
+              message: messageState ? state : false,
             },
           ],
         })
@@ -176,10 +210,70 @@ const VoteDialog: React.FC<VoteDialogProps> = ({
         });
     }
   };
+
+  const fileSelect = (destination: string = "Voters/Avatars/") => ({
+    target: { files },
+  }: React.ChangeEvent<HTMLInputElement>) => {
+    const image = files?.length ? files[0] : null;
+    if (image) {
+      uploadFile({ file: image, destination });
+    }
+  };
+
+  const uploadFile = ({
+    file,
+    destination,
+  }: {
+    file: File;
+    destination: string;
+  }) => {
+    const storageRef = projectStorage.ref(destination + file.name);
+
+    storageRef.put(file).on(
+      "state_change",
+
+      // Upload state change event
+      (snapshot) => {
+        let percentage = Math.ceil(
+          (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+        );
+        setLoading(true);
+      },
+
+      //  on error event
+      (error) => {
+        setLoading(false);
+      },
+
+      //  on upload finish
+      async () => {
+        const url = await storageRef.getDownloadURL();
+        setLoading(false);
+        setState({ ...state, img: url });
+      }
+    );
+  };
+
+  const handleChange = ({
+    currentTarget: { name, value },
+  }: React.ChangeEvent<HTMLInputElement>) => {
+    setState({ ...state, [name]: value });
+  };
+
+  const checkMessage = () => {
+    if (!messageState) return false;
+    if (Boolean(state.alias) && Boolean(state.message)) return false;
+    return true;
+  };
+
   return (
     <Dialog open={open} onClose={onClose} classes={{ paper: c.voteDialog }}>
       {loading && <Loading className={c.loading} />}
-      <Alert severity="info">You cannot modify nor remove your vote</Alert>
+      <Alert severity="warning">You cannot modify nor remove your vote</Alert>
+      <Alert severity="info" style={{ marginTop: 10 }}>
+        The prod team may select a random shoutout from the pick'em votes and
+        display it on livestream
+      </Alert>
 
       <div className={c.poll}>
         <div
@@ -209,16 +303,73 @@ const VoteDialog: React.FC<VoteDialogProps> = ({
           }}
         ></div>
       </div>
+
+      <FormControlLabel
+        control={
+          <Switch
+            checked={messageState}
+            onChange={({
+              target: { checked },
+            }: React.ChangeEvent<HTMLInputElement>) =>
+              setMeessageState(checked)
+            }
+            color="primary"
+          />
+        }
+        label="Add Shoutout"
+      />
+
+      {messageState && (
+        <>
+          <TextField
+            label="Alias"
+            variant="outlined"
+            size="small"
+            value={state.alias}
+            name="alias"
+            onChange={handleChange}
+          />
+          <TextField
+            style={{ margin: "10px 0" }}
+            label="Message (maximum of 110 characters)"
+            variant="outlined"
+            size="small"
+            inputProps={{ maxLength: 110 }}
+            rows={2}
+            multiline
+            value={state.message}
+            name="message"
+            onChange={handleChange}
+          />
+          <div style={{ display: "flex", alignItems: "center" }}>
+            <div
+              className="avatar"
+              style={{ backgroundImage: `url(${state.img})` }}
+            ></div>
+            <Button component="label" variant="contained">
+              <input
+                type="file"
+                hidden
+                onChange={fileSelect("Voters/Avatars/")}
+              />
+              Upload Avatar (optional)
+            </Button>
+          </div>
+        </>
+      )}
+
       <Button
         style={{ marginTop: 10 }}
         variant="contained"
         color={selected === poll?.team2 ? "secondary" : "primary"}
         disabled={
-          (selected !== poll?.team2 && selected !== poll?.team1) || loading
+          (selected !== poll?.team2 && selected !== poll?.team1) ||
+          checkMessage() ||
+          loading
         }
         onClick={vote}
       >
-        Vote Now
+        Vote {selected?.org_name}
       </Button>
     </Dialog>
   );
